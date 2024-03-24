@@ -9,8 +9,6 @@ import useGame from "./hooks/useGame";
 export default function Home() {
   const { guesses } = useGame();
 
-  
-
   return (
     <main className={styles.main}>
       <div>

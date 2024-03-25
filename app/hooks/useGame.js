@@ -2,15 +2,17 @@
 import { Box, Stack } from "@mui/material";
 import { green } from "@mui/material/colors";
 import { useEffect, useState } from "react";
+// import isWord from "is-word";
 
-const numRows = 5;
+// const englishWords = isWord('british-english');
+const numRows = 6;
 const numCols = 5;
 const initialArray = [];
 
 for (let i = 0; i < numRows; i++) {
   const row = [];
   for (let j = 0; j < numCols; j++) {
-    row.push(undefined);
+    row.push({letter: '', letterState: 'not-guessed'});
   }
   initialArray.push(row);
 }
@@ -20,46 +22,63 @@ const useGame = () => {
     const [guesses, setGuesses] = useState(initialArray);
     const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
     const [currentGuessIndex, setCurrentGuessIndex] = useState(0);
+    const [revealWord, setRevealWord] = useState(false);
+    const [shakeLetter, setShakeLetter] = useState({});
+    const [win, setWin] = useState(false);
 
-    const matchAnywhere = (checkLetter) => {
-        return word.some((letter) => letter === checkLetter);
-    }
-    
     const submitGuess = () => {
-        if(currentLetterIndex !== 4) return;
+        const guessedWord = guesses[currentGuessIndex].map((letter) => letter?.value).join("");
+        console.log(guessedWord);
+        if(guessedWord.length !== 5){
+            console.log('not 5 letters');
+            return;
+        }
+        // if(!englishWords.check(guessedWord)){
+        //     console.log('not a word');
+        //     return;
+        // }
         const newGuesses = guesses[currentGuessIndex].map((letter, index) => {
             if(letter.value === word[index]){
-                return {...letter, color: 'green'}
+                return {...letter, letterState: 'correct', shake: true}
             }
-            if([...word].some((char) => char === letter.value)){
-                return {...letter, color: '#C9B458'}
+            if([...word].some((char) => char === letter.value,)){
+                return {...letter, letterState: 'maybe', shake: true}
             }
-            return {...letter, color: 'grey'}
+            return {...letter, letterState: 'incorrect', shake: true}
         });
+
         setGuesses((prevGuesses) => {
             const updatedGuesses = [...prevGuesses];
             updatedGuesses[currentGuessIndex] = newGuesses;
             return updatedGuesses;
         });
-
-        setCurrentLetterIndex(0);
-        setCurrentGuessIndex((prev) => prev + 1);
+        setRevealWord(currentGuessIndex);
+        if(guessedWord === word){
+            setWin(true);
+        }else{
+            nextTurn();
+        }
     }
 
     const isLetter = (key) => {
         return /^[a-zA-Z]$/.test(key);
     };
 
+    const nextTurn = () => {
+        setCurrentLetterIndex(0);
+        setCurrentGuessIndex((prev) => prev + 1);
+    }
    const letterPressed = (newLetter) => {
         setGuesses(prevGuesses => {
             const updatedGuesses = [...prevGuesses];
-            updatedGuesses[currentGuessIndex][currentLetterIndex] = {value: newLetter, color: 'white'};
+            updatedGuesses[currentGuessIndex][currentLetterIndex] = {value: newLetter, letterState: 'guessed', shake: true};
             return updatedGuesses;
         });
         setCurrentLetterIndex(prevIndex => {
             const nextIndex = prevIndex + 1;
             return nextIndex;
         });
+        setShakeLetter({word: currentGuessIndex, letter: currentLetterIndex});
    }
 
    const removeLetter = () => {
@@ -70,17 +89,13 @@ const useGame = () => {
         });
         setGuesses(prevGuesses => {
             const updatedGuesses = [...prevGuesses];
-            updatedGuesses[currentGuessIndex][currentLetterIndex-1] = {value: '', color: 'white'};
+            updatedGuesses[currentGuessIndex][currentLetterIndex-1] = {value: '', letterState: 'not-guessed'};
             return updatedGuesses; 
         });
    }
 
-
     const handleKeyPress = (event) => {
-        console.log(event, currentLetterIndex);
         if(event.key === 'Enter'){
-            console.log('submitted');
-            console.log(currentGuessIndex, currentLetterIndex);
             submitGuess();
         }
         if(event.key === 'Backspace'){
@@ -88,10 +103,8 @@ const useGame = () => {
         }
         if(isLetter(event.key) &&  currentLetterIndex !== numCols){
             letterPressed(event.key)
-            console.log(currentGuessIndex)
         } 
     }
-
     useEffect(() => {
         // Attach event listeners when the component mounts
         document.addEventListener('keydown', handleKeyPress);
@@ -100,11 +113,7 @@ const useGame = () => {
         };
     });
 
-    useEffect(()=> {
-        console.log(guesses)
-    }, [guesses])
-
-    return {guesses, handleKeyPress, currentLetterIndex, currentGuessIndex};
+    return {guesses, handleKeyPress, currentLetterIndex, currentGuessIndex, shakeLetter, revealWord};
 }
 
 export default useGame;

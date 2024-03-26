@@ -1,16 +1,18 @@
 'use client';
-import { Box, Stack, Typography, keyframes, styled } from "@mui/material";
+import { Stack, } from "@mui/material";
 import Letterbox from "./letterbox";
 
 export default function Word({letters, shakeLetter, wordIndex, revealWord, shakeWord}) {
+    const shake = shakeWord === wordIndex ? true : undefined;
     return (
         <Stack direction='row' spacing={0.7}>
             {letters.map((letter, index)=> (
-                <Letterbox key={index} 
+                <Letterbox 
+                    key={index} 
                     letter={letter} 
                     shakeLetter={shakeLetter} 
                     revealWord={revealWord}
-                    shakeWord={shakeWord}
+                    shake={shake}
                     letterIndex={index} 
                     wordIndex={wordIndex}  />
             ))}

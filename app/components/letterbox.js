@@ -1,7 +1,6 @@
 'use client';
-import { Box, Stack, Typography, keyframes, styled } from "@mui/material";
+import { Box, Typography, keyframes, styled } from "@mui/material";
 import { useEffect, useState } from "react";
-import styles from './word.module.css';
 
 const pulseAnimation = keyframes`
     0% { 
@@ -26,6 +25,7 @@ const shakeAnimation = keyframes`
 const flipAnimation = keyframes`
     transform: rotateX(360);
 `;
+
 const getColor = (letterState) => {
     if(letterState === 'incorrect') return '#787C7E';
     
@@ -47,7 +47,7 @@ const getAnimation = (pulse, shake, flip) => {
 }
 
 const StyledBox = styled(Box, {shouldForwardProp: (prop) => prop !== "pulse" || prop !== "guessed" || prop !== "letterState" || prop !== 'revealed' || prop !== 'shakeWord'})(({pulse, guessed, revealed, letterState, shakeWord}) => {
-    console.log(pulse, guessed, revealed, letterState, shakeWord);
+    /// console.log(pulse, guessed, revealed, letterState, shakeWord);
     return ({
     display: 'flex',
     justifyContent: 'center',
@@ -57,25 +57,31 @@ const StyledBox = styled(Box, {shouldForwardProp: (prop) => prop !== "pulse" || 
     border: getBorderColor(guessed, revealed),
     perspective: '1000px',
     animation: getAnimation(pulse, shakeWord, revealed),
-    backgroundColor: revealed ? getColor(letterState) : ''
+    backgroundColor: revealed ? getColor(letterState) : '',
 }) } );
     
 
-export default function Letterbox({letter, shakeLetter, wordIndex, letterIndex, revealWord, shakeWord}) {
-    const [pulse, setPulse] = useState(false);
-    const [revealed, setRevealed] = useState(false);
-    const [guessed, setGuessed] = useState(false);
+export default function Letterbox({letter, shakeLetter, wordIndex, letterIndex, revealWord, shake}) {
+    const [pulse, setPulse] = useState();
+    const [revealed, setRevealed] = useState();
+    const [guessed, setGuessed] = useState();
     const [letterState, setLetterState] = useState('')
+
     useEffect(() => {
         if((shakeLetter.word === wordIndex && shakeLetter.letter === letterIndex)){
             console.log(`shaking ${letterIndex} ${wordIndex}`);
             setPulse(true);
+            setTimeout(() => {
+                setPulse(false);
+            }, 2000);
         }
     }, [shakeLetter]);
 
     useEffect(() => {
         if((letter?.letter !== '')){
             setGuessed(true);
+        }else{
+            setGuessed(false)
         }
     }, [letter]);
 
@@ -85,14 +91,15 @@ export default function Letterbox({letter, shakeLetter, wordIndex, letterIndex, 
                 setRevealed(true);
                 setLetterState(letter?.letterState);
             };
-        }, 500*letterIndex);
+        }, 400*letterIndex);
     }, [revealWord]);
 
     return (
-        <StyledBox pulse={pulse} revealed={revealed} guessed={guessed} letterState={letterState} shakeWord={shakeWord}>
+        <StyledBox pulse={pulse} revealed={revealed} guessed={guessed} letterState={letterState} shake={shake}>
             <Typography 
             textTransform={'capitalize'} 
             fontSize={28}
+            color={revealed ? 'white' : 'black'}
             sx={{
                 fontWeight: 600
             }}

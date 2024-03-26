@@ -2,7 +2,7 @@
 
 import { Box, Modal, Typography } from "@mui/material";
 
-export default function WinModal({setWin}) {
+export default function WinModal({setWin, win}) {
   
   return (
     <Modal open={win} onClose={()=>setWin(false)}>

@@ -1,13 +1,11 @@
 'use client';
 
 import styles from "./page.module.css";
-import { AppBar, Box, IconButton, Stack, Toolbar, Typography } from "@mui/material";
-import Word from "./components/word";
-import { useEffect, useState } from "react";
+import { useEffect,  useState } from "react";
 import WinModal from "./components/winmodal";
-import { BarChart, HelpOutline, Menu, Settings } from "@mui/icons-material";
-import styled from "@emotion/styled";
 import Keyboard from "./components/keyboard";
+import Header from "./components/header";
+import WordleBoard from "./components/wordleboard";
 
 const numRows = 6;
 const numCols = 5;
@@ -21,55 +19,68 @@ for (let i = 0; i < numRows; i++) {
   initialArray.push(row);
 }
 
-const StyledIconButton = styled(IconButton)({
-  color: 'black',
-  fontSize: 'large',
-});
-
 export default function Home() {
   const [guesses, setGuesses] = useState(initialArray);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [currentGuessIndex, setCurrentGuessIndex] = useState(0);
-  const [revealWord, setRevealWord] = useState(false);
+  const [revealWord, setRevealWord] = useState('');
   const [shakeLetter, setShakeLetter] = useState({});
   const [shakeWord, setShakeWord] = useState(false);
   const [win, setWin] = useState(false);
+  const [keyStates, setKeyStates] = useState(new Map());
   const [word, setWord] = useState('swept');
+
+  const changeKeyState = (oldValue, newState) => {
+    if(newState === 'correct') return 'correct';
+    if(newState === 'maybe' && oldValue !== 'correct') return 'maybe'; 
+    if(newState === 'guessed' && oldValue == 'not-guessed') return 'guessed';
+    return oldValue;
+  }
+
+  const updateMap = (key, newState) => {
+    if(keyStates.has(key)){
+      setKeyStates(prevMap => {
+        const oldValue = prevMap.get(key);
+        const newValue = changeKeyState(oldValue, newState);
+        return prevMap.set(key, newValue);
+      })
+      } else{
+      setKeyStates(prevMap => new Map([...prevMap.entries(), [key, newState]]));
+    }
+  };
 
   const markGuesses = (currentWordArray) => {
     const newGuesses = currentWordArray.map((letter, index) => {
       if(letter.value === word[index]){
+          updateMap(letter.value, 'correct');
           return {...letter, letterState: 'correct'}
       }
       if([...word].some((char) => char === letter.value)){
+          updateMap(letter.value, 'maybe');
           return {...letter, letterState: 'maybe'}
       }
+      updateMap(letter.value, 'incorrect');
       return {...letter, letterState: 'incorrect'}
     });
     return newGuesses;
   }
 
+
   const submitGuess = () => {
       const guessedWord = guesses[currentGuessIndex].map((letter) => letter?.value).join("").toLowerCase();
       ///if there is not a full word shake the letters on submit
       if(guessedWord.length !== 5){
-          console.log('not 5 letters');
+          console.log('not 5 letters', currentGuessIndex);
           setShakeWord(currentGuessIndex);
           return;
       }
-      //
-      // if(!englishWords.check(guessedWord)){
-      //     console.log('not a word');
-          ///shakeWord()
-      //     return;
-      // }
       
       setGuesses((prevGuesses) => {
           const updatedGuesses = [...prevGuesses];
           updatedGuesses[currentGuessIndex] = markGuesses(updatedGuesses[currentGuessIndex]);
           return updatedGuesses;
       });
-
+      
       setRevealWord(currentGuessIndex);
 
       if(guessedWord === word){
@@ -89,7 +100,7 @@ export default function Home() {
       setCurrentLetterIndex(0);
       setCurrentGuessIndex((prev) => prev + 1);
   };
-
+  
   ///When letter is pressed update guesses and shake letter then move on to next letter
   const letterPressed = (newLetter) => {
       setGuesses(prevGuesses => {
@@ -111,7 +122,6 @@ export default function Home() {
           const nextIndex = prevIndex - 1;
           return nextIndex;
       });
-      setShakeLetter(0);
       setGuesses(prevGuesses => {
           const updatedGuesses = [...prevGuesses];
           updatedGuesses[currentGuessIndex][currentLetterIndex-1] = {value: '', letterState: 'not-guessed'};
@@ -119,7 +129,7 @@ export default function Home() {
       });
   }
 
-  ///
+  ///handles all key press events
   const handleKeyPress = (event) => {
       if(event.key === 'Enter'){
           submitGuess();
@@ -128,10 +138,12 @@ export default function Home() {
           removeLetter();
       }
       if(isLetter(event.key) &&  currentLetterIndex !== numCols){
-          letterPressed(event.key)
+          letterPressed(event.key.toLowerCase());
       } 
   }
 
+
+  ///used to listen to all keyboard inputs by a user
   useEffect(() => {
       document.addEventListener('keydown', handleKeyPress);
       return () => {
@@ -141,47 +153,12 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <AppBar sx={{ borderBottom: '1px solid #D3D6DA', backgroundColor: 'white', }} position="fixed" elevation={0}>
-        <Toolbar >
-          <Box display='flex' flexGrow={1} justifyContent='space-between' alignItems={'center'}>
-            <StyledIconButton>
-              <Menu />
-            </StyledIconButton>
-            <Typography variant="h4" color={'black'} fontWeight={700}>
-              Wordle
-            </Typography>
-            <Box>
-              <StyledIconButton>
-                <HelpOutline />
-              </StyledIconButton>
-              <StyledIconButton>
-                <BarChart />
-              </StyledIconButton>
-              <StyledIconButton>
-                <Settings />
-              </StyledIconButton>
-            </Box>
-           </Box>
-        </Toolbar>
-      </AppBar>
+      <Header />
       {win && (
-        <WinModal setWin={setWin} />
+        <WinModal setWin={setWin} win={win}/>
       )}
-      <div>
-        <Stack spacing={0.7}>
-          {guesses.map((guess, index) => (
-            <Word 
-              key={index} 
-              letters={guess} 
-              wordIndex={index} 
-              shakeLetter={shakeLetter} 
-              revealWord={revealWord}
-              shakeWord={shakeWord === index}
-            />
-          ))}
-        </Stack>
-      </div>
-      <Keyboard handleKeyPress={handleKeyPress}/>
+      <WordleBoard guesses={guesses} shakeLetter={shakeLetter} revealWord={revealWord} shakeWord={shakeWord} />
+      <Keyboard handleKeyPress={handleKeyPress} keyStates={keyStates}/>
     </main>
   );
 }

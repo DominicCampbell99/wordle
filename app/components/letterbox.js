@@ -22,16 +22,28 @@ const shakeAnimation = keyframes`
     100% { transform: rotate(0deg); }
 `;
 
-const flipAnimation = keyframes`
-    transform: rotateX(360);
+const flipAnimation = (colour) => keyframes`
+     0% { 
+        transform: rotateX(0deg);
+    }
+    45% { 
+        transform: rotateX(90deg);
+    }
+    55% { 
+        transform: rotateX(90deg);
+    }
+    100% { 
+        transform: rotateX(0deg);
+     }
 `;
 
-const getColor = (letterState) => {
-    if(letterState === 'incorrect') return '#787C7E';
+const getColor = (letterState, revealed) => {
+    if(revealed && letterState === 'incorrect') return '#787C7E';
     
-    if(letterState === 'correct') return '#6AAA64';
+    if(revealed && letterState === 'correct') return '#6AAA64';
 
-    if(letterState === 'maybe') return '#C9B458';
+    if(revealed && letterState === 'maybe') return '#C9B458';
+    
 }
 
 const getBorderColor = (guessed, revealed) => {
@@ -40,14 +52,13 @@ const getBorderColor = (guessed, revealed) => {
     if(guessed && revealed) return '0px';
 }
 
-const getAnimation = (pulse, shake, flip) => {
-    if(pulse && !shake) return `${pulseAnimation} 0.5s`;
+const getAnimation = (pulse, shake, flip, colour) => {
+    if(pulse && !shake && !flip) return `${pulseAnimation} 0.5s`;
     if(shake) return `${shakeAnimation} 0.5s`;
-    if(flip) return `${flipAnimation} 0.5s`;
+    if(flip) return `${flipAnimation(colour)} 0.7s ease forwards`;
 }
 
-const StyledBox = styled(Box, {shouldForwardProp: (prop) => prop !== "pulse" || prop !== "guessed" || prop !== "letterState" || prop !== 'revealed' || prop !== 'shakeWord'})(({pulse, guessed, revealed, letterState, shakeWord}) => {
-    /// console.log(pulse, guessed, revealed, letterState, shakeWord);
+const StyledBox = styled(Box, {shouldForwardProp: (prop) => prop !== "pulse" || prop !== "guessed" || prop !== "colour" || prop !== 'revealed' || prop !== 'shake'})(({pulse, guessed, revealed, colour, shake}) => {
     return ({
     display: 'flex',
     justifyContent: 'center',
@@ -55,47 +66,56 @@ const StyledBox = styled(Box, {shouldForwardProp: (prop) => prop !== "pulse" || 
     height: '62px',
     width: '62px',
     border: getBorderColor(guessed, revealed),
+    backgroundColor: getColor(colour, revealed),
     perspective: '1000px',
-    animation: getAnimation(pulse, shakeWord, revealed),
-    backgroundColor: revealed ? getColor(letterState) : '',
+    animation: getAnimation(pulse, shake, revealed),
 }) } );
     
 
-export default function Letterbox({letter, shakeLetter, wordIndex, letterIndex, revealWord, shake}) {
-    const [pulse, setPulse] = useState();
-    const [revealed, setRevealed] = useState();
-    const [guessed, setGuessed] = useState();
-    const [letterState, setLetterState] = useState('')
-
+export default function Letterbox({letter, shakeLetter, wordIndex, letterIndex, revealWord, shake, gameOver}) {
+    const [pulse, setPulse] = useState(0);
+    const [revealed, setRevealed] = useState(0);
+    const [guessed, setGuessed] = useState(0);
+    const [colour, setColour] = useState('')
+    
     useEffect(() => {
         if((shakeLetter.word === wordIndex && shakeLetter.letter === letterIndex)){
             console.log(`shaking ${letterIndex} ${wordIndex}`);
-            setPulse(true);
+            setPulse(1);
             setTimeout(() => {
-                setPulse(false);
+                setPulse(0);
             }, 2000);
         }
     }, [shakeLetter]);
 
     useEffect(() => {
-        if((letter?.letter !== '')){
-            setGuessed(true);
+        if((letter?.value !== '')){
+            setGuessed(1);
         }else{
-            setGuessed(false)
+            setGuessed(0)
         }
     }, [letter]);
 
     useEffect(() => {
         setTimeout(()=> {
             if(revealWord === wordIndex){
-                setRevealed(true);
-                setLetterState(letter?.letterState);
+                setRevealed(1);
+                setColour(letter?.letterState);
             };
-        }, 400*letterIndex);
+        }, 600*letterIndex);
     }, [revealWord]);
 
+    useEffect(() => {
+        if(!gameOver){
+            setRevealed(0);
+            setGuessed(0);
+            setPulse(0);
+            setColour('');
+        }
+    }, [gameOver]);
+
     return (
-        <StyledBox pulse={pulse} revealed={revealed} guessed={guessed} letterState={letterState} shake={shake}>
+        <StyledBox key={colour} pulse={pulse} revealed={revealed} guessed={guessed} colour={colour} shake={shake}>
             <Typography 
             textTransform={'capitalize'} 
             fontSize={28}

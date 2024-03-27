@@ -24,13 +24,40 @@ const getColor = (letterState) => {
 }
 
 
-export default function KeyButton({keyletter, keyStates, handleKeyPress}) {
+export default function KeyButton({keyletter, handleKeyPress, guesses}) {
     const [colour, setColour] = useState('#D3D6DA');
-    
+
+    const compareStates = (newState, oldState) => {
+        const guessStateRank = {
+            'correct': 3,
+            'maybe': 2,
+            'incorrect': 1,
+            'not-guessed': 0,
+        };
+        return (guessStateRank[newState] || 0) - (guessStateRank[oldState] || 0);
+    }
+
+    const getKeyColour = (key) => {
+        let state = 'not-guessed'
+        for(let i = 0; i < 5; i++){
+            for(let j = 0; j < 5; j++){
+                const guess = guesses[i][j];
+                if(guess.value !== key){
+                    continue;
+                }
+                if(compareStates(guess.letterState, state) > 0){
+                    state = guess.letterState;
+                }
+            }
+        }
+        return state;
+        
+    };
+
     useEffect(() => {
-        const newColour = getColor(keyStates.get(keyletter.toLowerCase()));
+        const newColour = getColor(getKeyColour(keyletter.toLowerCase()));
         setColour(newColour);
-    }, [keyStates])
+    }, [guesses])
 
     if(keyletter === 'Enter'){
         return (<StyledButton 

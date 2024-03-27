@@ -8,16 +8,16 @@ const keyboardRow2 = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
 const keyboardRow3 = ['Enter', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Backspace'];
 
 
-export default function Keyboard({handleKeyPress, keyStates}) {
+export default function Keyboard({handleKeyPress, guesses}) {
   return (
     <Stack spacing={1}>
         <Stack direction={'row'} spacing={0.5}>
             {keyboardRow1.map((key, index) => (
                 <KeyButton 
-                key={index}
-                keyletter={key} 
-                keyStates={keyStates} 
-                handleKeyPress={handleKeyPress}
+                    key={index}
+                    keyletter={key} 
+                    guesses={guesses}
+                    handleKeyPress={handleKeyPress}
                 />
             ))}
         </Stack>
@@ -26,7 +26,7 @@ export default function Keyboard({handleKeyPress, keyStates}) {
                 <KeyButton 
                 key={index}
                 keyletter={key} 
-                keyStates={keyStates} 
+                guesses={guesses}
                 handleKeyPress={handleKeyPress}
                 />
             ))}
@@ -36,7 +36,7 @@ export default function Keyboard({handleKeyPress, keyStates}) {
                 <KeyButton
                 key={index}
                 keyletter={key} 
-                keyStates={keyStates} 
+                guesses={guesses}
                 handleKeyPress={handleKeyPress}/>
             ))}
         </Stack>

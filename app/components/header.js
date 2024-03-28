@@ -29,11 +29,11 @@ export default function Header() {
             <Menu />
           </StyledIconButton>
         </Box>
-        <Box textAlign="center">
+        <Box textAlign="center" display='flex' flexDirection='row'>
           <Typography variant="h4" color="black" fontWeight={700}>
             Wordle
           </Typography>
-          <Typography fontSize="10px">
+          <Typography fontSize="10px" color={'black'}>
             (clone)
           </Typography>
         </Box>

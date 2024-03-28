@@ -1,5 +1,5 @@
-import wordsFile from "@/utils/wordFileReader";
 import { NextResponse } from "next/server";
+import { promises as fs } from 'fs';
 
 
 function getRandomWord(data) {
@@ -12,6 +12,7 @@ function getRandomWord(data) {
 
 
 export async function GET(req) {
+    const wordsFile = await fs.readFile(process.cwd() + '/app/sgb-words.txt', 'utf8');
     const randomFiveLetterWord = getRandomWord(wordsFile);
     return NextResponse.json({ word: randomFiveLetterWord});
 }

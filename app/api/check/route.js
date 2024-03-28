@@ -1,5 +1,5 @@
-import wordsFile from "@/utils/wordFileReader";
 import { NextResponse } from "next/server";
+import { promises as fs } from 'fs';
 
 function searchWord(word, text) {
     const lines = text.split('\n');
@@ -15,6 +15,7 @@ function searchWord(word, text) {
 export async function GET(req) {
     const { searchParams } = new URL(req.url)
     const word = searchParams.get('word');
+    const wordsFile = await fs.readFile(process.cwd() + '/app/sgb-words.txt', 'utf8');
 
     const results = searchWord(word, wordsFile);
     

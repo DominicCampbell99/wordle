@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from 'fs';
 
-function searchWord(word, text) {
-    const lines = text.split('\n');
+function searchWord(word, data) {
     const found = [];
-    lines.forEach(line => {
+    data.forEach(line => {
         if (line.includes(word)) {
-            found.push(line.trim()); // Trim removes leading/trailing whitespace
+            found.push(line);
         }
     });
     return found;
@@ -15,9 +14,9 @@ function searchWord(word, text) {
 export async function GET(req) {
     const { searchParams } = new URL(req.url)
     const word = searchParams.get('word');
-    const wordsFile = await fs.readFile(process.cwd() + '/app/sgb-words.txt', 'utf8');
-
-    const results = searchWord(word, wordsFile);
+    const wordsFile = await fs.readFile(process.cwd() + '/5-letter-words.json', 'utf8');
+    const words = JSON.parse(wordsFile)
+    const results = searchWord(word, words);
     
     if (results.length > 0) {
         return NextResponse.json({ exists: true },);

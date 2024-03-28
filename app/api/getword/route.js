@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from 'fs';
-
+import fs from 'fs';
+import path from 'path';
 
 function getRandomWord(data) {
     const randomIndex = Math.floor(Math.random() * data.length);
@@ -10,7 +10,8 @@ function getRandomWord(data) {
 
 
 export async function GET(req) {
-    const wordsFile = await fs.readFile(process.cwd() + '/5-letter-words.json', 'utf8');
+    const filePath = path.join(process.cwd(), '5-letter-words.json')
+    const wordsFile = fs.readFileSync(filePath);
     const words = JSON.parse(wordsFile)
     const randomFiveLetterWord = getRandomWord(words);
     return NextResponse.json({ word: randomFiveLetterWord});

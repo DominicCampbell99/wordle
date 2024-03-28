@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from 'fs';
+import fs from 'fs';
+import path from 'path';
 
 function searchWord(word, data) {
     const found = [];
@@ -14,7 +15,8 @@ function searchWord(word, data) {
 export async function GET(req) {
     const { searchParams } = new URL(req.url)
     const word = searchParams.get('word');
-    const wordsFile = await fs.readFile(process.cwd() + '/5-letter-words.json', 'utf8');
+    const filePath = path.join(process.cwd(), '5-letter-words.json')
+    const wordsFile = fs.readFileSync(filePath);
     const words = JSON.parse(wordsFile)
     const results = searchWord(word, words);
     

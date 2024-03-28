@@ -12,7 +12,6 @@ import GameWarning from "./components/gamewarning";
 export default function Main() {
   const {restartGame, guesses, handleKeyPress, revealWord, gameOver, shakeWord, shakeLetter, msg, word, error, setError} = useGame();
 
-  console.log(guesses);
   ///listens to the users keyboard inputs
   useEffect(() => {
       document.addEventListener('keydown', handleKeyPress);

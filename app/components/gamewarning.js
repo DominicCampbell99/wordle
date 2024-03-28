@@ -2,7 +2,10 @@
 
 import { Alert, Snackbar } from "@mui/material";
 
-
+/**
+ * A warning snackbar that displays an error when one is set
+ * @param {Props} props 
+ */
 export default function GameWarning({error, setError}) {
   
   return (

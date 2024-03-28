@@ -20,10 +20,6 @@ export async function GET(req) {
     const results = searchWord(word, words);
     
     if (results.length > 0) {
-        console.log(`The word was found`);
-        results.forEach(result => {
-            console.log(result);
-        });
         return NextResponse.json({ exists: true },);
     } else {
         return NextResponse.json({ exists: false},);

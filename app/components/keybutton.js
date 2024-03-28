@@ -12,20 +12,27 @@ const StyledButton = styled(Button)({
     borderRadius: '4px',
     '&:hover': {
         cursor: 'pointer',
-        backgroundColor: '#D3D6DA',
+        opacity: 0.7,
     }
 });
 
-const getColor = (letterState) => {
-    if(letterState === 'incorrect') return '#787C7E';
-    if(letterState === 'correct') return '#6AAA64';
-    if(letterState === 'maybe') return '#C9B458';
-    return '#D3D6DA'
-}
 
 
+/**
+ * A button that can be pressed to replace a keyboard
+ * changes colour based on the best guessed state of the key
+ * @param {Props} props
+ * @returns 
+ */
 export default function KeyButton({keyletter, handleKeyPress, guesses}) {
     const [colour, setColour] = useState('#D3D6DA');
+
+    const getColor = (letterState) => {
+        if(letterState === 'incorrect') return '#787C7E';
+        if(letterState === 'correct') return '#6AAA64';
+        if(letterState === 'maybe') return '#C9B458';
+        return '#D3D6DA'
+    }
 
     const compareStates = (newState, oldState) => {
         const guessStateRank = {

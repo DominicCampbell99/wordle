@@ -1,12 +1,23 @@
+
+/*
+Hook that controls the game
+*/
 'use client';
 
-import {   useState } from "react";
+import { useState } from "react";
 
 const numRows = 6;
 const numCols = 5;
 
-
-
+/**
+ * 
+ *  @property {Function} restartGame restarts the wordle game
+ *  @property {Function} handleKeyPress take a key press enter and modifies the gameState based on the key
+ *  @property {Function} setError sets an error to flag with the player
+ * 
+ * , guesses, handleKeyPress, revealWord, gameOver, shakeWord, shakeLetter, msg, word , error, setError
+ * 
+ */
 export const useGame = () => {
   const [currentGuessIndex, setCurrentGuessIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
@@ -60,7 +71,6 @@ export const useGame = () => {
   const submitGuess = async () => {
       const guessedWord = guesses[currentGuessIndex].map((letter) => letter?.value).join("").toLowerCase();
       if(guessedWord.length !== 5){
-          console.log('not 5 letters', currentGuessIndex);
           shakeThisWord(currentGuessIndex);
           setError('Word is Not 5 Letters in length!');
           return;
@@ -82,7 +92,7 @@ export const useGame = () => {
         return;
       }
       if((currentGuessIndex + 1) > 5){
-        setMsg('Unlucky You Lose the word was ${}');
+        setMsg(`Unlucky You Lose the word was ${word}`);
         setGameOver(true);
         return
       }
@@ -99,7 +109,6 @@ export const useGame = () => {
       setCurrentLetterIndex(0);
       setCurrentGuessIndex((prev) => prev + 1);
   };
-  
   
   const letterPressed = (newLetter) => {
       setGuesses(prevGuesses => {
@@ -141,15 +150,20 @@ export const useGame = () => {
       } 
   }
 
-  const restartGame = async () => {
-    clearBoard();
-    setCurrentGuessIndex(0);
-    setCurrentLetterIndex(0);
-    setGameOver(false);
+  const getNewWord = async () => {
     const response = await fetch(`/api/getword`);
     const body = await response.json();
     setWord(body.word);
     console.log(body.word);
+  }
+
+  const restartGame = () => {
+    setCurrentGuessIndex(0);
+    setCurrentLetterIndex(0);
+    setGameOver(false);
+    setRevealWord(-1);
+    getNewWord();
+    clearBoard();
   }
 
   const clearBoard = () => {

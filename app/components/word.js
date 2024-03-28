@@ -2,8 +2,13 @@
 import { Stack, } from "@mui/material";
 import Letterbox from "./letterbox";
 
+/**
+ * Component that represents a a guess in constructed of a row of letterboxes
+ * @param {Props} props 
+ */
 export default function Word({letters, shakeLetter, wordIndex, revealWord, shakeWord, gameOver}) {
     const shake = shakeWord === wordIndex ? 1 : 0;
+    const revealed = revealWord === wordIndex ? 1 : 0;
     return (
         <Stack direction='row' spacing={0.7}>
             {letters.map((letter, index)=> (
@@ -11,7 +16,7 @@ export default function Word({letters, shakeLetter, wordIndex, revealWord, shake
                     key={index} 
                     letter={letter} 
                     shakeLetter={shakeLetter} 
-                    revealWord={revealWord}
+                    revealed={revealed}
                     shake={shake}
                     letterIndex={index} 
                     wordIndex={wordIndex}
@@ -22,3 +27,5 @@ export default function Word({letters, shakeLetter, wordIndex, revealWord, shake
         
     );
 }
+
+

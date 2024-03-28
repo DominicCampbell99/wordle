@@ -4,6 +4,10 @@ import { Close } from "@mui/icons-material";
 import { Box, IconButton, Modal, Stack, Typography } from "@mui/material";
 import { useRef } from "react";
 
+/**
+ * A popup modal for when the game is over that contains a short message
+ * @param {Props} props 
+ */
 export default function GameOverModal({onClose, open, msg}) {
   const wrapperRef = useRef(null);
   

@@ -1995,7 +1995,6 @@ latex
 veils
 mused
 mains
-myrrh
 racks
 galls
 gnats
@@ -5484,7 +5483,6 @@ lilty
 micks
 arity
 pasha
-finif
 oinky
 gutty
 tetra
